@@ -12,7 +12,7 @@ cli_app = typer.Typer()
 def parse(filepath: str, savePath: str = "output.txt"):
     data = []
     with open(filepath, "r") as f:
-        data = [line.strip() for line in f.readlines()]
+        data = list(filter(lambda x: x!="",[line.strip() for line in f.readlines()]))
 
     parse_inbox(data, BINS)
 
