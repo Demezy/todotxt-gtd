@@ -1,21 +1,16 @@
 from enum import Enum
-from typing import Callable, Generator, Iterable, NoReturn, Type, TypeVar
+from typing import Callable, Iterable, Type, TypeVar
 
 from flupy import flu
-from pyrsistent import PMap, PVector, freeze, pvector
+from pyrsistent import PMap, PVector, pvector
 from returns.maybe import Maybe, Nothing, Some, maybe
-from returns.io import IO, IOResult, IOSuccess, IOFailure
+from returns.io import IO, IOResult
 from returns.unsafe import unsafe_perform_io
 
 from returns.result import Result, Success
-from returns.functions import identity
-from returns.converters import flatten
-from returns.pipeline import pipe
 from returns.curry import curry
-from returns.interfaces.specific.result import ResultBasedN, ResultBased2
 from returns.iterables import Fold
 
-from app_failure import IOResultAF
 
 K = TypeVar("K")  # Key type
 V = TypeVar("V")  # Value type

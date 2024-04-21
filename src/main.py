@@ -1,20 +1,17 @@
-import dis
 from pathlib import Path
 
 from flupy import flu
 
-from app_failure import AppFailure, IOResultAF
+from app_failure import IOResultAF
 from impure.filesystem import create_file, file_lines, write_file_lines
-from impure.io import iopprint, ioprint
+from impure.io import ioprint
 from impure.user_io import (
     prompt_context,
     promt_until_valid,
     user_fixed_tasks,
 )
 from pyrsistent import pvector
-from returns.io import IO, IOResult
-from returns.converters import flatten
-from returns.functions import tap, identity
+from returns.io import IO
 from tasks.show_task import show_task
 from tasks.task_entity import TaskContext, TaskEntity
 from todotxt.parser import (

@@ -4,8 +4,8 @@ from datetime import datetime
 from config import Priority
 from pyrsistent import PSet, freeze
 from returns.converters import maybe_to_result
-from returns.maybe import Maybe, Some, maybe, Nothing
-from returns.result import Result, Success, Failure
+from returns.maybe import Maybe, Some, maybe
+from returns.result import Result
 from tasks.task_entity import TaskEntity, TaskProject, TaskProperties
 from utils import maybe_get_enum, maybe_get_map
 
