@@ -10,5 +10,5 @@ lint-fix:
 format:
     poetry run ruff format {{ _project }}
 
-run:
-    poetry run python "{{ _project }}/main.py"
+run *args:
+    poetry run python "{{ _project }}/main.py" {{ args }}
