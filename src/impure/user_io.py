@@ -2,14 +2,13 @@ from enum import Enum
 from typing import Callable, Type, TypeVar, Union
 
 from config import CONTEXTS, PROJECTS, Priority
-from returns.io import IO, impure, IOResult, IOFailure, IOSuccess
+from returns.io import IO, IOResult
 from returns.maybe import Maybe
 from returns.trampolines import Trampoline, trampoline
 from returns.unsafe import unsafe_perform_io
-from returns.result import Result, Success, Failure
 from tasks.task_entity import TaskContext, TaskEntity, TaskProject
-from impure.io import pprint, print, input
-from pyrsistent import PMap, PVector, pvector
+from impure.io import iopprint, ioprint, ioinput
+from pyrsistent import PMap, PVector
 
 from todotxt.parser import TaskEntityOrStr, TodoStr, task_from_todotxt
 from utils import (
@@ -17,7 +16,6 @@ from utils import (
     maybe_get_enum,
     maybe_get_map,
     result_recovered,
-    recovered_result,
 )
 
 
@@ -29,20 +27,25 @@ def prompt_enum(title: str, enum: Type[E]) -> IO[Maybe[E]]:
     """
     Prompt the user to choose an enum value from a enum class.
     """
-    print(f"[yellow]{title}[/yellow]")
-    print(*enum._member_names_)
-
-    return input().map(lambda key: maybe_get_enum(enum=enum, key=key))
+    return IO.do(
+        maybe_get_enum(enum=enum, key=choose)
+        for _ in ioprint(f"[yellow]{title}[/yellow]")
+        for _ in ioprint(*enum._member_names_)
+        for choose in ioinput()
+    )
 
 
 def prompt_map(title: str, options: PMap[str, T]) -> IO[Maybe[T]]:
     """
     Prompt the user to choose a value from a map.
     """
-    print(f"[yellow]{title}[/yellow]")
-    pprint(options, expand_all=True)
 
-    return input().map(lambda key: maybe_get_map(map=options, key=key))
+    return IO.do(
+        maybe_get_map(map=options, key=choose)
+        for _ in ioprint(f"[yellow]{title}[/yellow]")
+        for _ in iopprint(options)
+        for choose in ioinput()
+    )
 
 
 def prompt_project() -> IO[Maybe[TaskProject]]:
@@ -67,10 +70,14 @@ def prompt_priority() -> IO[Maybe[Priority]]:
 
 
 def maybe_fixed_from_str(parse_failed_task: TodoStr) -> IO[Maybe[TaskEntity]]:
-    print("\n[red]Failed to parse this todo:[/red]\n" + parse_failed_task)
-    print("[red]Please, manually fix syntax[/red]")
-
-    return IO.do(task_from_todotxt(new_todo) for new_todo in input())
+    return IO.do(
+        task_from_todotxt(new_todo)
+        for new_todo in ioinput()
+        for _ in ioprint(
+            "\n[red]Failed to parse this todo:[/red]\n" + parse_failed_task
+        )
+        for _ in ioprint("[red]Please, manually fix syntax[/red]")
+    )
 
 
 def fixed_task_from_str(
@@ -85,10 +92,8 @@ def user_fixed_tasks(
     tasks: PVector[TaskEntityOrStr],
 ) -> IO[PVector[TaskEntity]]:
     return io_vector(
-        pvector(
-            result_recovered(fixed_task_from_str, IOResult.from_result(task_r))
-            for task_r in tasks
-        )
+        result_recovered(fixed_task_from_str, IOResult.from_result(task_r))
+        for task_r in tasks
     )
 
 
@@ -108,7 +113,7 @@ def promt_until_valid(
     )  # used with caution, need to be wrapped in Trampoline
 
     # print message if function return Nothing
-    result.or_else_call(lambda: impure(print)(message) if message else None)
+    result.or_else_call(lambda: iopprint(message) if message else None)
 
     # actually equivalent to while loop, but what an elegant way to write it
     return result.map(lambda value: IO(value)).value_or(
