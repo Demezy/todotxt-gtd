@@ -33,6 +33,7 @@ def handle_failure(failure: AppFailure) -> io.IO[None]:
             | AppFailure.file_read_only
             | AppFailure.unknown_fs_error
             | AppFailure.write_to_dir
+            | AppFailure.file_exists
         ):
             return io.IO(None)
         case AppFailure.test:
